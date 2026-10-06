@@ -1,14 +1,14 @@
 services:
   backend:
-    build: ./backend
+    image: ljurca/assignment11-backend:latest
     container_name: assignment11-backend
 
   frontend:
-    build: ./frontend
+    image: ljurca/assignment11-frontend:latest
     container_name: assignment11-frontend
 
   nginx:
-    build: ./nginx
+    image: ljurca/assignment11-nginx:latest
     container_name: assignment11-nginx
     ports:
       - "8080:80"

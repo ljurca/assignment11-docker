@@ -1,4 +1,4 @@
-name: Docker Compose CI
+name: Build and Deploy to EC2
 
 on:
   push:
@@ -6,27 +6,25 @@ on:
       - main
 
 jobs:
-  test-docker-compose:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build containers
-        run: docker compose build
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Start containers
-        run: docker compose up -d
-
-      - name: Show running containers
-        run: docker compose ps
-
-      - name: Test backend through Nginx
+      - name: Deploy to EC2 using SSM
         run: |
-          sleep 5
-          curl --fail http://localhost:8080/api
-
-      - name: Stop containers
-        if: always()
-        run: docker compose down
+          aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=["cd /home/ec2-user/assignment11","docker compose pull","docker compose up -d","docker compose ps"]' \
+            --region "${{ secrets.AWS_REGION }}"

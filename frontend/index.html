@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Assignment 11</title>
+</head>
+<body>
+    <h1>Docker Compose on EC2</h1>
+    <p>Hello from the frontend container!</p>
+    <p id="backend">Loading backend...</p>
+
+    <script>
+        fetch('/api')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('backend').innerText = data.message;
+            })
+            .catch(() => {
+                document.getElementById('backend').innerText = 'Could not reach backend';
+            });
+    </script>
+</body>
+</html>
